@@ -76,25 +76,6 @@ If you are developing or editing files:
 
 ---
 
-## 🌐 How to Host Online
-
-Publish your game online for free in seconds using one of these options:
-
-### Option 1: GitHub Pages (Automatic Git Deploy)
-1. Push the code to a public GitHub repository.
-2. Navigate to **Settings** > **Pages** inside your repository.
-3. Under *Build and deployment*, set the source to **Deploy from a branch**.
-4. Choose the `main` branch and root `/` folder, then click **Save**.
-5. Your game will be live at `https://<your-username>.github.io/<your-repo-name>/a1_index.html` within a minute.
-
-### Option 2: Netlify (Instant Drag-and-Drop)
-1. Go to [Netlify App](https://app.netlify.com/).
-2. Log in and head to the **Sites** page.
-3. Drag the root folder of this project directly into the deployment drop-box.
-4. Netlify will deploy it instantly and provide a production URL.
-
----
-
 ## 📝 License
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
