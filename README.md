@@ -3,9 +3,11 @@
 [![Web Technologies](https://img.shields.io/badge/Tech-HTML5%20%7C%20CSS3%20%7C%20JS-blue?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/en-US/)
 [![License](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Mobile Responsive](https://img.shields.io/badge/UI-Responsive%20%26%20Glassmorphic-purple?style=for-the-badge)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![Deployment Status](https://img.shields.io/badge/Deployment-GitHub%20Pages-blueviolet?style=for-the-badge&logo=github)](https://github.com/)
+[![Deployment Status](https://img.shields.io/badge/Deployment-Vercel-black?style=for-the-badge&logo=vercel)](https://save-the-ground-water-game.vercel.app/)
 
 **Save the Groundwater** is a stunning, gamified educational learning platform designed to teach water conservation, contaminated water purification, and high-efficiency micro-irrigation management. 
+
+### 🌐 Play Live: [save-the-ground-water-game.vercel.app](https://save-the-ground-water-game.vercel.app/)
 
 Through highly interactive gameplay, players learn the critical importance of preserving village groundwater reserves, sequencing multi-stage filter mediums, and selecting optimal watering methods to sustain crops without depleting natural water sources.
 
