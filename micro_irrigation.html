@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 4: Micro Irrigation Farm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981; /* Emerald green */
+            --secondary: #059669;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --water-color: #3b82f6;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #090d16 0%, #111e2e 100%), url('assets/village.webp');
+            background-size: cover;
+            background-blend-mode: overlay;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #34d399, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(52, 211, 153, 0.3);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+
+        .game-wrapper {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            flex: 1 1 450px;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .dashboard-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--water-color);
+        }
+
+        .stat-lbl {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Farm Grid styling */
+        .farm-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+        }
+
+        .crop-tile {
+            aspect-ratio: 1;
+            background: rgba(120, 80, 40, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            overflow: hidden;
+        }
+
+        .crop-tile:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+            background: rgba(120, 80, 40, 0.25);
+        }
+
+        .crop-tile.selected-target {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .crop-icon {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .crop-tile:hover .crop-icon {
+            transform: translateY(-5px);
+        }
+
+        .crop-type {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .hydration-bar {
+            width: 80%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hydration-progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.4s ease, background 0.4s ease;
+        }
+
+        .hydration-text {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        /* Tool Selection list */
+        .tool-inventory {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tool-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .tool-card.active {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .tool-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tool-details h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .tool-details p {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .tool-cost {
+            margin-left: auto;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #60a5fa;
+            text-align: right;
+        }
+
+        .info-box {
+            background: rgba(52, 211, 153, 0.05);
+            border: 1px dashed rgba(52, 211, 153, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        #feedback-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+            font-weight: 600;
+        }
+
+        .msg-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .msg-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+        }
+
+        .actions {
+            margin-top: auto;
+            display: flex;
+            gap: 15px;
+            padding-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #0f172a;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>LEVEL 4: MICRO IRRIGATION</h1>
+        <div class="subtitle">Water all the crops to 100% hydration without depleting the groundwater!</div>
+    </header>
+
+    <div class="game-wrapper">
+        <!-- Left Panel: Crop Grid -->
+        <div class="glass-panel">
+            <div class="dashboard-stats">
+                <div class="stat-item">
+                    <div class="stat-val" id="waterVal">300L</div>
+                    <div class="stat-lbl">Groundwater Reserve</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val" id="cropsVal" style="color: #34d399;">0 / 9</div>
+                    <div class="stat-lbl">Hydrated Crops</div>
+                </div>
+            </div>
+
+            <!-- Farm Grid (3x3) -->
+            <div class="farm-grid" id="farmGrid">
+                <!-- Dynamically generated crop cards -->
+            </div>
+
+            <div id="feedback-message"></div>
+        </div>
+
+        <!-- Right Panel: Irrigation tools & Reset -->
+        <div class="glass-panel">
+            <div class="info-box">
+                <strong>How to play:</strong><br>
+                1. Select an irrigation tool below.<br>
+                2. Click on a crop grid tile to apply the watering effect.<br>
+                3. Hydrate all crops to <strong>100%</strong> before your groundwater reserve reaches zero.<br>
+                - <strong>Lettuce (🥬)</strong>: Hydrates quickly.<br>
+                - <strong>Tomato (🍅)</strong>: Medium water need.<br>
+                - <strong>Corn (🌽)</strong>: Thirsty crop, needs targeted watering.
+            </div>
+
+            <h3>Select Irrigation Tool</h3>
+            <div class="tool-inventory" id="inventory">
+                <div class="tool-card active" data-tool="drip" onclick="selectTool('drip')">
+                    <div class="tool-icon" style="color: #34d399;">💧</div>
+                    <div class="tool-details">
+                        <h4>Drip Irrigation</h4>
+                        <p>High efficiency. Targets exactly 1 crop tile. Adds 40% hydration.</p>
+                    </div>
+                    <div class="tool-cost">15L</div>
+                </div>
+
+                <div class="tool-card" data-tool="sprinkler" onclick="selectTool('sprinkler')">
+                    <div class="tool-icon" style="color: #60a5fa;">🚿</div>
+                    <div class="tool-details">
+                        <h4>Sprinkler System</h4>
+                        <p>Medium coverage. Waters selected tile + 4 adjacent tiles. Adds 25% hydration.</p>
+                    </div>
+                    <div class="tool-cost">45L</div>
+                </div>
+
+                <div class="tool-card" data-tool="flood" onclick="selectTool('flood')">
+                    <div class="tool-icon" style="color: #3b82f6;">🌊</div>
+                    <div class="tool-details">
+                        <h4>Flood Irrigation</h4>
+                        <p>Inefficient water usage. Waters a whole vertical row. Adds 50% hydration.</p>
+                    </div>
+                    <div class="tool-cost">100L</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn-secondary" onclick="resetFarm()">Reset Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let waterReserve = 300;
+        let selectedTool = "drip";
+        let isGameOver = false;
+
+        // Grid data structure: array of 9 crop objects
+        // indices:
+        // 0 1 2
+        // 3 4 5
+        // 6 7 8
+        let grid = [];
+        const cropTypes = [
+            { icon: "🥬", name: "Lettuce", factor: 1.0 },
+            { icon: "🍅", name: "Tomato", factor: 0.8 },
+            { icon: "🌽", name: "Corn", factor: 0.6 }
+        ];
+
+        const toolCosts = {
+            drip: 15,
+            sprinkler: 45,
+            flood: 100
+        };
+
+        function selectTool(toolName) {
+            if (isGameOver) return;
+            selectedTool = toolName;
+            document.querySelectorAll(".tool-card").forEach(card => {
+                if (card.getAttribute("data-tool") === toolName) {
+                    card.classList.add("active");
+                } else {
+                    card.classList.remove("active");
+                }
+            });
+        }
+
+        function initFarm() {
+            grid = [];
+            waterReserve = 300;
+            isGameOver = false;
+
+            // Generate crop list
+            for (let i = 0; i < 9; i++) {
+                // Pick a crop randomly
+                const typeIdx = Math.floor(Math.random() * cropTypes.length);
+                const type = cropTypes[typeIdx];
+                // Random initial hydration 10% - 30%
+                const hydration = Math.floor(Math.random() * 21) + 10;
+                grid.push({
+                    id: i,
+                    icon: type.icon,
+                    name: type.name,
+                    hydration: hydration,
+                    factor: type.factor
+                });
+            }
+
+            renderFarm();
+            updateStats();
+            document.getElementById("feedback-message").style.display = "none";
+        }
+
+        function renderFarm() {
+            const gridEl = document.getElementById("farmGrid");
+            gridEl.innerHTML = "";
+
+            grid.forEach((tile, index) => {
+                const tileEl = document.createElement("div");
+                tileEl.className = "crop-tile";
+                tileEl.onclick = () => applyWatering(index);
+
+                // Add tile details
+                tileEl.innerHTML = `
+                    <div class="crop-icon">${tile.icon}</div>
+                    <div class="crop-type">${tile.name}</div>
+                    <div class="hydration-bar">
+                        <div class="hydration-progress" style="width: ${tile.hydration}%; background: ${tile.hydration >= 100 ? '#10b981' : '#3b82f6'};"></div>
+                    </div>
+                    <div class="hydration-text" style="color: ${tile.hydration >= 100 ? '#10b981' : 'white'}">${tile.hydration}%</div>
+                `;
+
+                gridEl.appendChild(tileEl);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById("waterVal").innerText = waterReserve + "L";
+            const hydratedCount = grid.filter(tile => tile.hydration >= 100).length;
+            document.getElementById("cropsVal").innerText = hydratedCount + " / 9";
+
+            if (hydratedCount >= 100) {
+                document.getElementById("cropsVal").style.color = "#10b981";
+            }
+        }
+
+        function applyWatering(tileIndex) {
+            if (isGameOver) return;
+
+            const cost = toolCosts[selectedTool];
+            if (waterReserve < cost) {
+                alert("Not enough groundwater reserve for this tool!");
+                return;
+            }
+
+            // Deduct water
+            waterReserve -= cost;
+
+            // Apply specific tool logic
+            if (selectedTool === "drip") {
+                // Waters single tile
+                hydrateTile(tileIndex, 40);
+            } else if (selectedTool === "sprinkler") {
+                // Waters single tile + adjacent
+                hydrateTile(tileIndex, 25);
+                const row = Math.floor(tileIndex / 3);
+                const col = tileIndex % 3;
+
+                if (row > 0) hydrateTile(tileIndex - 3, 25); // Top
+                if (row < 2) hydrateTile(tileIndex + 3, 25); // Bottom
+                if (col > 0) hydrateTile(tileIndex - 1, 25); // Left
+                if (col < 2) hydrateTile(tileIndex + 1, 25); // Right
+            } else if (selectedTool === "flood") {
+                // Waters whole vertical column of the clicked tile (col = tileIndex % 3)
+                const col = tileIndex % 3;
+                hydrateTile(col, 50);
+                hydrateTile(col + 3, 50);
+                hydrateTile(col + 6, 50);
+            }
+
+            renderFarm();
+            updateStats();
+            checkGameState();
+        }
+
+        function hydrateTile(index, percent) {
+            const tile = grid[index];
+            // Apply crop efficiency factor
+            const actualAdd = Math.round(percent * tile.factor);
+            tile.hydration = Math.min(100, tile.hydration + actualAdd);
+        }
+
+        function checkGameState() {
+            const allHydrated = grid.every(tile => tile.hydration >= 100);
+
+            if (allHydrated) {
+                isGameOver = true;
+                const score = 150 + waterReserve; // Completion points + leftover water
+                showFeedback(true, `Congratulations! Your farm is fully hydrated! You used micro-irrigation methods successfully. Score: ${score} pts`);
+                saveGameSuccess(score);
+            } else if (waterReserve <= 0 || waterReserve < Math.min(...Object.values(toolCosts))) {
+                // Check if any tool can still be used. If not, game over!
+                const minCost = Math.min(...Object.values(toolCosts));
+                if (waterReserve < minCost) {
+                    isGameOver = true;
+                    showFeedback(false, "Groundwater depleted! You ran out of water before all crops were hydrated. Switch to more efficient tools (like Drip) next time!");
+                }
+            }
+        }
+
+        function showFeedback(isSuccess, text) {
+            const box = document.getElementById("feedback-message");
+            box.innerText = text;
+            box.style.display = "block";
+            box.className = isSuccess ? "msg-success" : "msg-error";
+
+            if (isSuccess) {
+                const finishBtn = document.createElement("button");
+                finishBtn.className = "btn-primary";
+                finishBtn.style.marginTop = "15px";
+                finishBtn.style.width = "100%";
+                finishBtn.innerText = "View Final Leaderboard";
+                finishBtn.onclick = () => {
+                    window.location.href = "leaderboard.html";
+                };
+                box.appendChild(finishBtn);
+            } else {
+                const retryBtn = document.createElement("button");
+                retryBtn.className = "btn-secondary";
+                retryBtn.style.marginTop = "15px";
+                retryBtn.style.width = "100%";
+                retryBtn.innerText = "Try Again";
+                retryBtn.onclick = () => {
+                    initFarm();
+                };
+                box.appendChild(retryBtn);
+            }
+        }
+
+        function saveGameSuccess(finalScore) {
+            let playerName = localStorage.getItem("playerName") || "Anonymous";
+
+            // Save to high score
+            let currentHighScore = parseInt(localStorage.getItem(`highScore_${playerName}`)) || 0;
+            if (finalScore > currentHighScore) {
+                localStorage.setItem(`highScore_${playerName}`, finalScore);
+            }
+
+            // Save to leaderboardData
+            let leaderboardData = JSON.parse(localStorage.getItem("leaderboardData")) || [];
+            let existing = leaderboardData.find(p => p.name === playerName);
+            if (existing) {
+                existing.score = (existing.score || 0) + finalScore;
+            } else {
+                leaderboardData.push({ name: playerName, score: finalScore });
+            }
+            leaderboardData.sort((a, b) => b.score - a.score);
+            leaderboardData = leaderboardData.slice(0, 10);
+            localStorage.setItem("leaderboardData", JSON.stringify(leaderboardData));
+        }
+
+        function resetFarm() {
+            initFarm();
+        }
+
+        // Initialize grid on load
+        initFarm();
+    </script>
+</body>
+</html>

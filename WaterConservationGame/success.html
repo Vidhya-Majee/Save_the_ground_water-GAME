@@ -33,6 +33,13 @@
           <table>
             <tr>
               <td width="">
+                <h3 style="color: #00d2ff; margin-left: 20px; font-weight: bold;">Score: <span id="scoreVal">0</span> mL water saved!</h3>
+                <script>
+                  document.addEventListener("DOMContentLoaded", () => {
+                    let score = localStorage.getItem("lastScore") || 0;
+                    document.getElementById("scoreVal").innerText = score;
+                  });
+                </script>
 
                 <p class="text1">
                   &nbsp; &nbsp; Awesome job! Cheru's family now has water - but it
@@ -121,7 +128,7 @@
               </button>
             </td>
             <td>
-              <button id="CTA2" onclick="window.location='index.html'" style="margin-left:8%">
+              <button id="CTA2" onclick="window.location='../second/dashboard.html'" style="margin-left:8%">
                 <table>
                   <tr>
                     <td>

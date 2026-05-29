@@ -47,9 +47,39 @@ function randomNumber(min, max) {
   return Math.floor(Math.random() * range) + min;
 }
 
-// function called when user reaches 0 health
+// function called when user reaches the house (successful completion)
 function endGame() {
-  // redirects user to "game over" screen
+  let score = Math.max(0, Math.round(curHealth[0]));
+  localStorage.setItem("lastScore", score);
+
+  // Unlock level 2 (extract_groundwater)
+  let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+  if (!unlockedLevels.includes("extract_groundwater")) {
+    unlockedLevels.push("extract_groundwater");
+    localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
+  }
+
+  // Save to leaderboard
+  let playerName = localStorage.getItem("playerName") || "Anonymous";
+  let currentHighScore = parseInt(localStorage.getItem(`highScore_${playerName}`)) || 0;
+  if (score > currentHighScore) {
+    localStorage.setItem(`highScore_${playerName}`, score);
+  }
+
+  let leaderboardData = JSON.parse(localStorage.getItem("leaderboardData")) || [];
+  let existing = leaderboardData.find(p => p.name === playerName);
+  if (existing) {
+    if (score > existing.score) {
+      existing.score = score;
+    }
+  } else {
+    leaderboardData.push({ name: playerName, score: score });
+  }
+  leaderboardData.sort((a, b) => b.score - a.score);
+  leaderboardData = leaderboardData.slice(0, 10);
+  localStorage.setItem("leaderboardData", JSON.stringify(leaderboardData));
+
+  // redirects user to success screen
   window.open("success.html", "_self");
 }
 

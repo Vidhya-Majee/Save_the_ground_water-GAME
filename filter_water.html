@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 3: Filter Contaminated Water</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #090d16 0%, #152035 100%), url('assets/Contamination.webp');
+            background-size: cover;
+            background-blend-mode: overlay;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(0, 242, 254, 0.3);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+
+        .game-wrapper {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            flex: 1 1 450px;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .beaker-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 400px;
+            position: relative;
+        }
+
+        /* Filter stack column */
+        .filter-column {
+            width: 150px;
+            height: 270px;
+            border-left: 5px solid rgba(255, 255, 255, 0.2);
+            border-right: 5px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .filter-slot {
+            height: 80px;
+            width: 100%;
+            border-top: 2px dashed rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+        }
+
+        .filter-slot.filled {
+            border-top: none;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .filter-slot:hover:not(.filled) {
+            background: rgba(255, 242, 254, 0.08);
+            color: var(--primary);
+        }
+
+        .water-chamber {
+            width: 138px;
+            position: absolute;
+            bottom: 0;
+            left: 1px;
+            background-color: rgba(139, 90, 43, 0.7); /* Contaminated water color */
+            transition: height 2s ease, background-color 3s ease;
+            z-index: 1;
+            height: 260px;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+        }
+
+        .clean-flask {
+            width: 180px;
+            height: 120px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: none;
+            border-radius: 0 0 90px 90px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .clean-flask::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 30px;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+            border-right: 4px solid rgba(255, 255, 255, 0.3);
+            margin-top: -30px;
+        }
+
+        .purified-water {
+            width: 100%;
+            height: 0px;
+            background: rgba(0, 242, 254, 0.6);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+            transition: height 2.5s ease;
+            position: relative;
+        }
+
+        /* Animated Impurities */
+        .impurity {
+            position: absolute;
+            background: #5c4033;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-around 5s infinite ease-in-out;
+            z-index: 2;
+        }
+
+        .bacteria {
+            position: absolute;
+            background: #3c7d3c;
+            border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+            animation: wiggle 3s infinite ease-in-out;
+            width: 12px;
+            height: 8px;
+            opacity: 0.7;
+            z-index: 2;
+        }
+
+        @keyframes float-around {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-30px) translateX(15px); }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0) translateY(0); }
+            50% { transform: rotate(15deg) translateY(-20px) translateX(-10px); }
+        }
+
+        /* Filter selection side */
+        .filter-inventory {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .filter-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .filter-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .filter-card.selected {
+            background: rgba(0, 242, 254, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .filter-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .filter-details h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .filter-details p {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .actions {
+            margin-top: auto;
+            display: flex;
+            gap: 15px;
+            padding-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #0f172a;
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-primary:disabled, .btn-secondary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Results / Instructions modal */
+        .info-box {
+            background: rgba(0, 242, 254, 0.05);
+            border: 1px dashed rgba(0, 242, 254, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        #feedback-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+            font-weight: 600;
+        }
+
+        .msg-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .msg-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--error);
+            color: #fca5a5;
+        }
+
+        /* Staged filter graphics */
+        .placed-filter {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .sand-gravel-placed {
+            background: linear-gradient(to bottom, #d4a373 0%, #a8a29e 100%);
+        }
+
+        .activated-carbon-placed {
+            background: linear-gradient(to bottom, #262626 0%, #171717 100%);
+        }
+
+        .chlorine-placed {
+            background: linear-gradient(to bottom, #e2e8f0 0%, #94a3b8 100%);
+        }
+
+        .water-stream {
+            position: absolute;
+            width: 8px;
+            background: rgba(139, 90, 43, 0.7);
+            top: 270px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 0px;
+            z-index: 0;
+            transition: height 1s ease, background 2s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>LEVEL 3: WATER PURIFICATION</h1>
+        <div class="subtitle">Purify the contaminated village groundwater so it is safe to drink!</div>
+    </header>
+
+    <div class="game-wrapper">
+        <!-- Left Panel: Beaker and Filter Column -->
+        <div class="glass-panel">
+            <div class="beaker-container">
+                <!-- Top column where filters are placed -->
+                <div class="filter-column" id="filterColumn">
+                    <div class="water-chamber" id="waterChamber"></div>
+                    <div class="filter-slot" data-slot="2" onclick="removeFilter(2)">Slot 3 (Top)</div>
+                    <div class="filter-slot" data-slot="1" onclick="removeFilter(1)">Slot 2 (Middle)</div>
+                    <div class="filter-slot" data-slot="0" onclick="removeFilter(0)">Slot 1 (Bottom)</div>
+                </div>
+
+                <!-- Drip connection stream -->
+                <div class="water-stream" id="waterStream"></div>
+
+                <!-- Bottom Clean Container -->
+                <div class="clean-flask">
+                    <div class="purified-water" id="purifiedWater"></div>
+                </div>
+            </div>
+            <div id="feedback-message"></div>
+        </div>
+
+        <!-- Right Panel: Inventory & Instructions -->
+        <div class="glass-panel">
+            <div class="info-box">
+                <strong>Instructions:</strong><br>
+                1. Select a filtration medium from the choices below.<br>
+                2. Click on the <strong>Filter Slots</strong> in the column to place your selected medium.<br>
+                3. Place them in the correct sequence to treat physical, chemical, and biological impurities.<br>
+                4. Press <strong>"Run Filtration"</strong> to clean the water.
+            </div>
+
+            <h3>Available Filters</h3>
+            <div class="filter-inventory" id="inventory">
+                <div class="filter-card" data-filter="sand_gravel" onclick="selectFilter('sand_gravel')">
+                    <div class="filter-icon" style="background: #eab308; color: black;">🪵</div>
+                    <div class="filter-details">
+                        <h4>Sand & Gravel</h4>
+                        <p>Removes suspended soil, mud particles, and physical debris.</p>
+                    </div>
+                </div>
+
+                <div class="filter-card" data-filter="activated_carbon" onclick="selectFilter('activated_carbon')">
+                    <div class="filter-icon" style="background: #3b82f6; color: white;">💎</div>
+                    <div class="filter-details">
+                        <h4>Activated Carbon</h4>
+                        <p>Absorbs heavy chemicals, chlorine, toxins, and bad odors.</p>
+                    </div>
+                </div>
+
+                <div class="filter-card" data-filter="chlorine" onclick="selectFilter('chlorine')">
+                    <div class="filter-icon" style="background: #10b981; color: white;">💊</div>
+                    <div class="filter-details">
+                        <h4>Chlorine Disinfection</h4>
+                        <p>Kills bacteria, viruses, microbes, and biological pathogens.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn-secondary" onclick="resetColumn()">Reset</button>
+                <button class="btn-primary" id="runBtn" onclick="runFiltration()" disabled>Run Filtration</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFilterType = null;
+        let placedFilters = [null, null, null]; // [bottom, middle, top]
+        let isRunning = false;
+
+        // Generate floating impurities in the water chamber
+        function createImpurities() {
+            const chamber = document.getElementById("waterChamber");
+            // Mud particles
+            for (let i = 0; i < 15; i++) {
+                const mud = document.createElement("div");
+                mud.className = "impurity";
+                mud.style.width = Math.random() * 8 + 4 + "px";
+                mud.style.height = mud.style.width;
+                mud.style.left = Math.random() * 120 + 10 + "px";
+                mud.style.top = Math.random() * 220 + 20 + "px";
+                mud.style.animationDelay = Math.random() * 3 + "s";
+                chamber.appendChild(mud);
+            }
+            // Bacteria
+            for (let i = 0; i < 10; i++) {
+                const bac = document.createElement("div");
+                bac.className = "bacteria";
+                bac.style.left = Math.random() * 120 + 10 + "px";
+                bac.style.top = Math.random() * 220 + 20 + "px";
+                bac.style.animationDelay = Math.random() * 2 + "s";
+                chamber.appendChild(bac);
+            }
+        }
+
+        // Initialize impurities on load
+        document.addEventListener("DOMContentLoaded", () => {
+            createImpurities();
+            // Bind click to slots to place selected filter
+            const slots = document.querySelectorAll(".filter-slot");
+            slots.forEach(slot => {
+                slot.addEventListener("click", () => {
+                    const idx = parseInt(slot.getAttribute("data-slot"));
+                    if (selectedFilterType && !placedFilters[idx]) {
+                        placeFilter(idx, selectedFilterType);
+                    }
+                });
+            });
+        });
+
+        function selectFilter(type) {
+            if (isRunning) return;
+            selectedFilterType = type;
+            document.querySelectorAll(".filter-card").forEach(card => {
+                if (card.getAttribute("data-filter") === type) {
+                    card.classList.add("selected");
+                } else {
+                    card.classList.remove("selected");
+                }
+            });
+        }
+
+        function placeFilter(slotIdx, type) {
+            placedFilters[slotIdx] = type;
+            const slotEl = document.querySelector(`[data-slot="${slotIdx}"]`);
+            slotEl.innerHTML = "";
+            slotEl.classList.add("filled");
+
+            let label = "";
+            let classPlaced = "";
+            if (type === "sand_gravel") {
+                label = "Sand & Gravel";
+                classPlaced = "sand-gravel-placed";
+            } else if (type === "activated_carbon") {
+                label = "Activated Carbon";
+                classPlaced = "activated-carbon-placed";
+            } else if (type === "chlorine") {
+                label = "Chlorine Disinfection";
+                classPlaced = "chlorine-placed";
+            }
+
+            const visual = document.createElement("div");
+            visual.className = `placed-filter ${classPlaced}`;
+            visual.innerHTML = `<span>${label}</span>`;
+            slotEl.appendChild(visual);
+
+            // Reset current selection
+            selectedFilterType = null;
+            document.querySelectorAll(".filter-card").forEach(card => card.classList.remove("selected"));
+
+            // Check if column is fully set up
+            checkRunAvailability();
+        }
+
+        function removeFilter(slotIdx) {
+            if (isRunning) return;
+            if (placedFilters[slotIdx]) {
+                placedFilters[slotIdx] = null;
+                const slotEl = document.querySelector(`[data-slot="${slotIdx}"]`);
+                slotEl.classList.remove("filled");
+                slotEl.innerHTML = `Slot ${slotIdx + 1} (${slotIdx === 0 ? 'Bottom' : slotIdx === 1 ? 'Middle' : 'Top'})`;
+                checkRunAvailability();
+            }
+        }
+
+        function checkRunAvailability() {
+            const filledCount = placedFilters.filter(f => f !== null).length;
+            document.getElementById("runBtn").disabled = (filledCount !== 3);
+        }
+
+        function resetColumn() {
+            if (isRunning) return;
+            placedFilters = [null, null, null];
+            const slots = document.querySelectorAll(".filter-slot");
+            slots.forEach(slot => {
+                const slotIdx = parseInt(slot.getAttribute("data-slot"));
+                slot.classList.remove("filled");
+                slot.innerHTML = `Slot ${slotIdx + 1} (${slotIdx === 0 ? 'Bottom' : slotIdx === 1 ? 'Middle' : 'Top'})`;
+            });
+            document.getElementById("runBtn").disabled = true;
+            document.getElementById("waterChamber").style.height = "260px";
+            document.getElementById("purifiedWater").style.height = "0px";
+            document.getElementById("waterStream").style.height = "0px";
+            document.getElementById("waterStream").style.background = "rgba(139, 90, 43, 0.7)";
+            document.getElementById("feedback-message").style.display = "none";
+            
+            // Re-create impurities
+            document.getElementById("waterChamber").innerHTML = "";
+            createImpurities();
+        }
+
+        function runFiltration() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById("runBtn").disabled = true;
+
+            // Start draining dirty water
+            const waterChamber = document.getElementById("waterChamber");
+            waterChamber.style.height = "0px";
+
+            // Run stream
+            const stream = document.getElementById("waterStream");
+            stream.style.height = "160px";
+
+            // Validate filter order
+            // Correct sequence top to bottom (idx 2 is top, 1 is middle, 0 is bottom):
+            // Top: sand_gravel, Middle: activated_carbon, Bottom: chlorine
+            const correctOrder = (placedFilters[2] === "sand_gravel" && 
+                                  placedFilters[1] === "activated_carbon" && 
+                                  placedFilters[0] === "chlorine");
+
+            setTimeout(() => {
+                if (correctOrder) {
+                    // Stream color changes to clean
+                    stream.style.background = "rgba(0, 242, 254, 0.7)";
+                }
+            }, 1000);
+
+            setTimeout(() => {
+                stream.style.height = "0px";
+                if (correctOrder) {
+                    // Fill clean container
+                    document.getElementById("purifiedWater").style.height = "100%";
+                    showFeedback(true, "Success! The water is perfectly clean, toxin-free, and disinfected. Excellent job!");
+                    saveLevelSuccess();
+                } else {
+                    showFeedback(false, "Filtration failed! The water is still muddy or contaminated. Check your filter order! (Clue: Physical debris filter first, then Chemical odors, then Biological disinfection).");
+                    isRunning = false;
+                }
+            }, 2500);
+        }
+
+        function showFeedback(isSuccess, text) {
+            const box = document.getElementById("feedback-message");
+            box.innerText = text;
+            box.style.display = "block";
+            box.className = isSuccess ? "msg-success" : "msg-error";
+
+            if (isSuccess) {
+                // Add button to return to dashboard or proceed
+                const actionBtn = document.createElement("button");
+                actionBtn.className = "btn-primary";
+                actionBtn.style.marginTop = "15px";
+                actionBtn.style.width = "100%";
+                actionBtn.innerText = "Proceed to Level 4";
+                actionBtn.onclick = () => {
+                    window.location.href = "second/dashboard.html";
+                };
+                box.appendChild(actionBtn);
+            }
+        }
+
+        function saveLevelSuccess() {
+            // Unlock level 4 (do_nothing / Micro Irrigation)
+            let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+            if (!unlockedLevels.includes("do_nothing")) {
+                unlockedLevels.push("do_nothing");
+                localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
+            }
+
+            // Save score to leaderboard
+            let score = 100;
+            let playerName = localStorage.getItem("playerName") || "Anonymous";
+            let currentHighScore = parseInt(localStorage.getItem(`highScore_${playerName}`)) || 0;
+            if (score > currentHighScore) {
+                localStorage.setItem(`highScore_${playerName}`, score);
+            }
+
+            let leaderboardData = JSON.parse(localStorage.getItem("leaderboardData")) || [];
+            let existing = leaderboardData.find(p => p.name === playerName);
+            if (existing) {
+                existing.score = (existing.score || 0) + score;
+            } else {
+                leaderboardData.push({ name: playerName, score: score });
+            }
+            leaderboardData.sort((a, b) => b.score - a.score);
+            leaderboardData = leaderboardData.slice(0, 10);
+            localStorage.setItem("leaderboardData", JSON.stringify(leaderboardData));
+        }
+    </script>
+</body>
+</html>

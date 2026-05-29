@@ -10,45 +10,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!unlockedLevels.includes(option)) {
             card.classList.add("locked"); // Apply locked style
-            button.innerText = "LOCKED";
-            button.disabled = true;
+            if (button) {
+                button.innerText = "LOCKED";
+                button.disabled = true;
+            }
+        } else {
+            card.classList.remove("locked");
+            if (button) {
+                button.innerText = "PLAY";
+                button.disabled = false;
+            }
         }
     });
 });
 
-// Function to redirect & unlock the next level
-function chooseOption(option) {
+// Function to redirect & check unlocked status
+function chooseOption(option, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
     let gamePages = {
         "rainwater": "../WaterConservationGame/index.html",
         "extract_groundwater": "../surplus.html",
-        "more_groundwater": "filter_water.html",
-        "do_nothing": "micro_irrigation.html"
+        "more_groundwater": "../filter_water.html",
+        "do_nothing": "../micro_irrigation.html"
     };
+
+    let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+
+    if (!unlockedLevels.includes(option)) {
+        alert("This level is locked! Please complete the previous levels first.");
+        return;
+    }
 
     if (gamePages[option]) {
         window.location.href = gamePages[option];
-
-        // Unlock the next level
-        let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
-        let levelOrder = ["rainwater", "extract_groundwater", "more_groundwater", "do_nothing"];
-        let currentIndex = levelOrder.indexOf(option);
-
-        if (currentIndex !== -1 && currentIndex < levelOrder.length - 1) {
-            let nextLevel = levelOrder[currentIndex + 1];
-            if (!unlockedLevels.includes(nextLevel)) {
-                unlockedLevels.push(nextLevel);
-                localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
-            }
-        }
     }
-}
-
-function gotodrought() {
-    chooseOption('rainwater'); 
-    // Ensure the first level starts properly
-}
-
-function gotodrought() {
-    chooseOption('extract_groundwater'); 
-     // Ensure the first level starts properly
- }
+}
