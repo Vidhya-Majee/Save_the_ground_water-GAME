@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Level 3: Filter Contaminated Water</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = urlParams.get('playerName') || localStorage.getItem("playerName");
+        if (!playerName) {
+            window.location.href = "index.html";
+        } else {
+            localStorage.setItem("playerName", playerName);
+        }
+    </script>
     <style>
         :root {
             --primary: #00f2fe;
@@ -51,6 +60,7 @@
             font-weight: 800;
             background: linear-gradient(to right, var(--primary), var(--secondary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 4px 20px rgba(0, 242, 254, 0.3);
             margin-bottom: 5px;
@@ -120,6 +130,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            z-index: 3;
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.8rem;
@@ -151,6 +162,7 @@
             height: 260px;
             border-radius: 0 0 8px 8px;
             overflow: hidden;
+            pointer-events: none;
         }
 
         .clean-flask {
@@ -196,6 +208,7 @@
             opacity: 0.6;
             animation: float-around 5s infinite ease-in-out;
             z-index: 2;
+            pointer-events: none;
         }
 
         .bacteria {
@@ -207,6 +220,7 @@
             height: 8px;
             opacity: 0.7;
             z-index: 2;
+            pointer-events: none;
         }
 
         @keyframes float-around {
@@ -390,9 +404,37 @@
             z-index: 0;
             transition: height 1s ease, background 2s ease;
         }
+
+        .home-nav-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #cbd5e1;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.25s ease;
+            z-index: 10;
+        }
+
+        .home-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.2);
+            border-color: rgba(0, 242, 254, 0.4);
+        }
     </style>
 </head>
 <body>
+    <a href="javascript:void(0)" onclick="window.location.href='index.html?playerName=' + encodeURIComponent(playerName)" class="home-nav-btn">🏠 Home</a>
     <header>
         <h1>LEVEL 3: WATER PURIFICATION</h1>
         <div class="subtitle">Purify the contaminated village groundwater so it is safe to drink!</div>
@@ -405,9 +447,9 @@
                 <!-- Top column where filters are placed -->
                 <div class="filter-column" id="filterColumn">
                     <div class="water-chamber" id="waterChamber"></div>
-                    <div class="filter-slot" data-slot="2" onclick="removeFilter(2)">Slot 3 (Top)</div>
-                    <div class="filter-slot" data-slot="1" onclick="removeFilter(1)">Slot 2 (Middle)</div>
-                    <div class="filter-slot" data-slot="0" onclick="removeFilter(0)">Slot 1 (Bottom)</div>
+                    <div class="filter-slot" data-slot="2" ondragover="allowDrop(event)" ondrop="handleDrop(event, 2)">Slot 3 (Top)</div>
+                    <div class="filter-slot" data-slot="1" ondragover="allowDrop(event)" ondrop="handleDrop(event, 1)">Slot 2 (Middle)</div>
+                    <div class="filter-slot" data-slot="0" ondragover="allowDrop(event)" ondrop="handleDrop(event, 0)">Slot 1 (Bottom)</div>
                 </div>
 
                 <!-- Drip connection stream -->
@@ -433,7 +475,7 @@
 
             <h3>Available Filters</h3>
             <div class="filter-inventory" id="inventory">
-                <div class="filter-card" data-filter="sand_gravel" onclick="selectFilter('sand_gravel')">
+                <div class="filter-card" data-filter="sand_gravel" onclick="selectFilter('sand_gravel')" draggable="true" ondragstart="handleDragStart(event, 'sand_gravel')">
                     <div class="filter-icon" style="background: #eab308; color: black;">🪵</div>
                     <div class="filter-details">
                         <h4>Sand & Gravel</h4>
@@ -441,7 +483,7 @@
                     </div>
                 </div>
 
-                <div class="filter-card" data-filter="activated_carbon" onclick="selectFilter('activated_carbon')">
+                <div class="filter-card" data-filter="activated_carbon" onclick="selectFilter('activated_carbon')" draggable="true" ondragstart="handleDragStart(event, 'activated_carbon')">
                     <div class="filter-icon" style="background: #3b82f6; color: white;">💎</div>
                     <div class="filter-details">
                         <h4>Activated Carbon</h4>
@@ -449,7 +491,7 @@
                     </div>
                 </div>
 
-                <div class="filter-card" data-filter="chlorine" onclick="selectFilter('chlorine')">
+                <div class="filter-card" data-filter="chlorine" onclick="selectFilter('chlorine')" draggable="true" ondragstart="handleDragStart(event, 'chlorine')">
                     <div class="filter-icon" style="background: #10b981; color: white;">💊</div>
                     <div class="filter-details">
                         <h4>Chlorine Disinfection</h4>
@@ -469,6 +511,26 @@
         let selectedFilterType = null;
         let placedFilters = [null, null, null]; // [bottom, middle, top]
         let isRunning = false;
+
+        // Drag and drop event handlers
+        function handleDragStart(ev, type) {
+            if (isRunning) return;
+            ev.dataTransfer.setData("text/plain", type);
+            selectFilter(type);
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function handleDrop(ev, slotIdx) {
+            ev.preventDefault();
+            if (isRunning) return;
+            const type = ev.dataTransfer.getData("text/plain");
+            if (type && !placedFilters[slotIdx]) {
+                placeFilter(slotIdx, type);
+            }
+        }
 
         // Generate floating impurities in the water chamber
         function createImpurities() {
@@ -498,12 +560,14 @@
         // Initialize impurities on load
         document.addEventListener("DOMContentLoaded", () => {
             createImpurities();
-            // Bind click to slots to place selected filter
+            // Bind click to slots to place or remove filter
             const slots = document.querySelectorAll(".filter-slot");
             slots.forEach(slot => {
                 slot.addEventListener("click", () => {
                     const idx = parseInt(slot.getAttribute("data-slot"));
-                    if (selectedFilterType && !placedFilters[idx]) {
+                    if (placedFilters[idx]) {
+                        removeFilter(idx);
+                    } else if (selectedFilterType) {
                         placeFilter(idx, selectedFilterType);
                     }
                 });
@@ -646,15 +710,33 @@
                 actionBtn.style.width = "100%";
                 actionBtn.innerText = "Proceed to Level 4";
                 actionBtn.onclick = () => {
-                    window.location.href = "second/dashboard.html";
+                    window.location.href = "second/dashboard.html?playerName=" + encodeURIComponent(playerName);
                 };
                 box.appendChild(actionBtn);
+            } else {
+                const retryBtn = document.createElement("button");
+                retryBtn.className = "btn-secondary";
+                retryBtn.style.marginTop = "15px";
+                retryBtn.style.width = "100%";
+                retryBtn.innerText = "Try Again";
+                retryBtn.onclick = () => {
+                    resetColumn();
+                };
+                box.appendChild(retryBtn);
             }
         }
 
         function saveLevelSuccess() {
             // Unlock level 4 (do_nothing / Micro Irrigation)
-            let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+            let unlockedLevels = ["rainwater"];
+            try {
+                unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+                if (!Array.isArray(unlockedLevels)) {
+                    unlockedLevels = ["rainwater"];
+                }
+            } catch (e) {
+                unlockedLevels = ["rainwater"];
+            }
             if (!unlockedLevels.includes("do_nothing")) {
                 unlockedLevels.push("do_nothing");
                 localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));

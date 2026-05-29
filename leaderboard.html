@@ -36,6 +36,7 @@
             letter-spacing: 2px;
             background: linear-gradient(to right, #00f2fe 0%, #4facfe 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 4px 20px rgba(0, 242, 254, 0.2);
             text-align: center;
@@ -169,8 +170,8 @@
             <!-- Dynamic data will be generated here -->
         </ul>
         <div class="buttons-container">
-            <button class="start-btn" onclick="window.location.href='index.html'">START GAME</button>
-            <button class="back-btn" onclick="window.location.href='index.html'">BACK TO MENU</button>
+            <button class="start-btn" onclick="handleStartGame()">START GAME</button>
+            <button class="back-btn" onclick="window.location.href='index.html?playerName=' + encodeURIComponent(playerName)">BACK TO MENU</button>
         </div>
     </div>
 
@@ -207,6 +208,17 @@
                 });
             }
         });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = urlParams.get('playerName') || localStorage.getItem("playerName") || "";
+
+        function handleStartGame() {
+            if (playerName) {
+                window.location.href = "second/dashboard.html?playerName=" + encodeURIComponent(playerName);
+            } else {
+                window.location.href = "index.html";
+            }
+        }
     </script>
 </body>
 </html>

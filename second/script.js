@@ -1,6 +1,23 @@
+const urlParams = new URLSearchParams(window.location.search);
+const playerName = urlParams.get('playerName') || localStorage.getItem("playerName");
+
+if (!playerName) {
+    window.location.href = "../index.html";
+} else {
+    localStorage.setItem("playerName", playerName);
+}
+
 // Check unlocked levels in localStorage
 document.addEventListener("DOMContentLoaded", function () {
-    let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"]; // First level unlocked
+    let unlockedLevels = ["rainwater"];
+    try {
+        unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+        if (!Array.isArray(unlockedLevels)) {
+            unlockedLevels = ["rainwater"];
+        }
+    } catch (e) {
+        unlockedLevels = ["rainwater"];
+    }
 
     let cards = document.querySelectorAll(".card");
 
@@ -22,6 +39,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+
+    // Intercept Home button click to append playerName query param
+    const homeBtn = document.querySelector(".home-nav-btn");
+    if (homeBtn) {
+        homeBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            window.location.href = "../index.html?playerName=" + encodeURIComponent(playerName);
+        });
+    }
 });
 
 // Function to redirect & check unlocked status
@@ -37,7 +63,15 @@ function chooseOption(option, event) {
         "do_nothing": "../micro_irrigation.html"
     };
 
-    let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+    let unlockedLevels = ["rainwater"];
+    try {
+        unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+        if (!Array.isArray(unlockedLevels)) {
+            unlockedLevels = ["rainwater"];
+        }
+    } catch (e) {
+        unlockedLevels = ["rainwater"];
+    }
 
     if (!unlockedLevels.includes(option)) {
         alert("This level is locked! Please complete the previous levels first.");
@@ -45,6 +79,6 @@ function chooseOption(option, event) {
     }
 
     if (gamePages[option]) {
-        window.location.href = gamePages[option];
+        window.location.href = gamePages[option] + "?playerName=" + encodeURIComponent(playerName);
     }
 }

@@ -38,6 +38,7 @@
             letter-spacing: 2px;
             background: linear-gradient(to right, #00f2fe 0%, #4facfe 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 4px 20px rgba(0, 242, 254, 0.2);
             text-align: center;
@@ -198,9 +199,9 @@
     <div class="card">
         <!-- Input Screen -->
         <div class="name-input-container" id="nameInputContainer">
-            <p style="margin-bottom: 10px; color: #94a3b8; font-size: 0.95rem;">Enter your player name to begin the conservation journey:</p>
-            <input type="text" id="playerName" placeholder="Enter your name" oninput="toggleSubmitButton()">
-            <button id="submitButton" onclick="saveName()" disabled>Submit</button>
+            <p style="margin-bottom: 10px; color: #94a3b8; font-size: 0.95rem;">Register your player name to begin the conservation journey:</p>
+            <input type="text" id="playerName" placeholder="Enter player name to register" oninput="toggleSubmitButton()">
+            <button id="submitButton" onclick="saveName()" disabled>Register & Play</button>
         </div>
 
         <!-- Welcome Info -->
@@ -217,19 +218,31 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const savedName = localStorage.getItem("playerName");
-            if (savedName) {
-                let highScore = localStorage.getItem(`highScore_${savedName}`) || 0;
-                document.getElementById("playerName").value = savedName;
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlName = urlParams.get('playerName');
+            
+            if (urlName) {
+                // If playerName is in the URL query params, bypass name input and open menu directly
+                localStorage.setItem("playerName", urlName);
+                let highScore = localStorage.getItem(`highScore_${urlName}`) || 0;
+                document.getElementById("playerName").value = urlName;
                 document.getElementById("nameInputContainer").style.display = "none";
                 document.getElementById("gameButtons").style.display = "flex";
-                document.getElementById("welcomeMessage").innerHTML = `Welcome back, <strong>${savedName}</strong>!<br>High Score: <span style="color: #00d2ff; font-weight: bold;">${highScore} mL/pts</span>`;
+                document.getElementById("welcomeMessage").innerHTML = `Welcome back, <strong>${urlName}</strong>!<br>High Score: <span style="color: #00d2ff; font-weight: bold;">${highScore} mL/pts</span>`;
                 document.getElementById("welcomeMessage").style.display = "block";
+            } else {
+                // Fresh load (e.g. after loader page / a1_index.html) - force name entry screen
+                document.getElementById("nameInputContainer").style.display = "flex";
+                document.getElementById("gameButtons").style.display = "none";
+                document.getElementById("welcomeMessage").style.display = "none";
+                document.getElementById("playerName").value = "";
+                toggleSubmitButton();
             }
         });
 
         function gotodashboard() {
-            window.location.href = "second/dashboard.html";
+            const name = localStorage.getItem("playerName") || document.getElementById("playerName").value.trim();
+            window.location.href = "second/dashboard.html?playerName=" + encodeURIComponent(name);
         }
 
         function saveName() {

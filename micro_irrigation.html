@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Level 4: Micro Irrigation Farm</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = urlParams.get('playerName') || localStorage.getItem("playerName");
+        if (!playerName) {
+            window.location.href = "index.html";
+        } else {
+            localStorage.setItem("playerName", playerName);
+        }
+    </script>
     <style>
         :root {
             --primary: #10b981; /* Emerald green */
@@ -51,6 +60,7 @@
             font-weight: 800;
             background: linear-gradient(to right, #34d399, #60a5fa);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 4px 20px rgba(52, 211, 153, 0.3);
             margin-bottom: 5px;
@@ -127,7 +137,9 @@
         }
 
         .crop-tile {
-            aspect-ratio: 1;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
             background: rgba(120, 80, 40, 0.15);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -326,9 +338,37 @@
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.15);
         }
+
+        .home-nav-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #cbd5e1;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.25s ease;
+            z-index: 10;
+        }
+
+        .home-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.2);
+            border-color: rgba(0, 242, 254, 0.4);
+        }
     </style>
 </head>
 <body>
+    <a href="javascript:void(0)" onclick="window.location.href='index.html?playerName=' + encodeURIComponent(playerName)" class="home-nav-btn">🏠 Home</a>
     <header>
         <h1>LEVEL 4: MICRO IRRIGATION</h1>
         <div class="subtitle">Water all the crops to 100% hydration without depleting the groundwater!</div>
@@ -339,7 +379,7 @@
         <div class="glass-panel">
             <div class="dashboard-stats">
                 <div class="stat-item">
-                    <div class="stat-val" id="waterVal">300L</div>
+                    <div class="stat-val" id="waterVal">500L</div>
                     <div class="stat-lbl">Groundwater Reserve</div>
                 </div>
                 <div class="stat-item">
@@ -374,7 +414,7 @@
                     <div class="tool-icon" style="color: #34d399;">💧</div>
                     <div class="tool-details">
                         <h4>Drip Irrigation</h4>
-                        <p>High efficiency. Targets exactly 1 crop tile. Adds 40% hydration.</p>
+                        <p>High efficiency. Targets exactly 1 crop tile. Adds 50% hydration.</p>
                     </div>
                     <div class="tool-cost">15L</div>
                 </div>
@@ -383,18 +423,18 @@
                     <div class="tool-icon" style="color: #60a5fa;">🚿</div>
                     <div class="tool-details">
                         <h4>Sprinkler System</h4>
-                        <p>Medium coverage. Waters selected tile + 4 adjacent tiles. Adds 25% hydration.</p>
+                        <p>Medium coverage. Waters selected tile + 4 adjacent tiles. Adds 30% hydration.</p>
                     </div>
-                    <div class="tool-cost">45L</div>
+                    <div class="tool-cost">35L</div>
                 </div>
 
                 <div class="tool-card" data-tool="flood" onclick="selectTool('flood')">
                     <div class="tool-icon" style="color: #3b82f6;">🌊</div>
                     <div class="tool-details">
                         <h4>Flood Irrigation</h4>
-                        <p>Inefficient water usage. Waters a whole vertical row. Adds 50% hydration.</p>
+                        <p>Inefficient water usage. Waters a whole vertical row. Adds 60% hydration.</p>
                     </div>
-                    <div class="tool-cost">100L</div>
+                    <div class="tool-cost">75L</div>
                 </div>
             </div>
 
@@ -405,7 +445,7 @@
     </div>
 
     <script>
-        let waterReserve = 300;
+        let waterReserve = 500;
         let selectedTool = "drip";
         let isGameOver = false;
 
@@ -423,8 +463,8 @@
 
         const toolCosts = {
             drip: 15,
-            sprinkler: 45,
-            flood: 100
+            sprinkler: 35,
+            flood: 75
         };
 
         function selectTool(toolName) {
@@ -441,7 +481,7 @@
 
         function initFarm() {
             grid = [];
-            waterReserve = 300;
+            waterReserve = 500;
             isGameOver = false;
 
             // Generate crop list
@@ -493,7 +533,7 @@
             const hydratedCount = grid.filter(tile => tile.hydration >= 100).length;
             document.getElementById("cropsVal").innerText = hydratedCount + " / 9";
 
-            if (hydratedCount >= 100) {
+            if (hydratedCount >= 9) {
                 document.getElementById("cropsVal").style.color = "#10b981";
             }
         }
@@ -513,23 +553,23 @@
             // Apply specific tool logic
             if (selectedTool === "drip") {
                 // Waters single tile
-                hydrateTile(tileIndex, 40);
+                hydrateTile(tileIndex, 50);
             } else if (selectedTool === "sprinkler") {
                 // Waters single tile + adjacent
-                hydrateTile(tileIndex, 25);
+                hydrateTile(tileIndex, 30);
                 const row = Math.floor(tileIndex / 3);
                 const col = tileIndex % 3;
 
-                if (row > 0) hydrateTile(tileIndex - 3, 25); // Top
-                if (row < 2) hydrateTile(tileIndex + 3, 25); // Bottom
-                if (col > 0) hydrateTile(tileIndex - 1, 25); // Left
-                if (col < 2) hydrateTile(tileIndex + 1, 25); // Right
+                if (row > 0) hydrateTile(tileIndex - 3, 30); // Top
+                if (row < 2) hydrateTile(tileIndex + 3, 30); // Bottom
+                if (col > 0) hydrateTile(tileIndex - 1, 30); // Left
+                if (col < 2) hydrateTile(tileIndex + 1, 30); // Right
             } else if (selectedTool === "flood") {
                 // Waters whole vertical column of the clicked tile (col = tileIndex % 3)
                 const col = tileIndex % 3;
-                hydrateTile(col, 50);
-                hydrateTile(col + 3, 50);
-                hydrateTile(col + 6, 50);
+                hydrateTile(col, 60);
+                hydrateTile(col + 3, 60);
+                hydrateTile(col + 6, 60);
             }
 
             renderFarm();
@@ -575,7 +615,7 @@
                 finishBtn.style.width = "100%";
                 finishBtn.innerText = "View Final Leaderboard";
                 finishBtn.onclick = () => {
-                    window.location.href = "leaderboard.html";
+                    window.location.href = "leaderboard.html?playerName=" + encodeURIComponent(playerName);
                 };
                 box.appendChild(finishBtn);
             } else {

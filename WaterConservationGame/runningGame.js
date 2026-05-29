@@ -53,7 +53,15 @@ function endGame() {
   localStorage.setItem("lastScore", score);
 
   // Unlock level 2 (extract_groundwater)
-  let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+  let unlockedLevels = ["rainwater"];
+  try {
+    unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+    if (!Array.isArray(unlockedLevels)) {
+      unlockedLevels = ["rainwater"];
+    }
+  } catch (e) {
+    unlockedLevels = ["rainwater"];
+  }
   if (!unlockedLevels.includes("extract_groundwater")) {
     unlockedLevels.push("extract_groundwater");
     localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
@@ -80,7 +88,7 @@ function endGame() {
   localStorage.setItem("leaderboardData", JSON.stringify(leaderboardData));
 
   // redirects user to success screen
-  window.open("success.html", "_self");
+  window.open("success.html?playerName=" + encodeURIComponent(playerName), "_self");
 }
 
 // function that initializes some settings and graphics for the game
@@ -380,7 +388,7 @@ function gameOver() {
   keys[87] = false;
   keys[40] = false;
   keys[83] = false;
-  window.open("gameover.html", "_self");
+  window.open("gameover.html?playerName=" + encodeURIComponent(playerName), "_self");
 }
 
 //This checks whether a key is being held down

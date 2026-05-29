@@ -3,6 +3,15 @@
 <head>
   <title>Save the Water!</title>
   <link rel="icon" href="Images/icon.png">
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerName = urlParams.get('playerName') || localStorage.getItem("playerName");
+    if (!playerName) {
+      window.location.href = "../index.html";
+    } else {
+      localStorage.setItem("playerName", playerName);
+    }
+  </script>
   <link rel="stylesheet" type="text/css" href="game.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="shortcut icon" type="image/png" href="images/favicon.png" />

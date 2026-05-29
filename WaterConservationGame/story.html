@@ -4,6 +4,15 @@
       <head>
         <link rel="icon" href="Images/icon.png">
         <link href="https://fonts.googleapis.com/css2?family=Podkova:wght@800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        <script>
+          const urlParams = new URLSearchParams(window.location.search);
+          const playerName = urlParams.get('playerName') || localStorage.getItem("playerName");
+          if (!playerName) {
+            window.location.href = "../index.html";
+          } else {
+            localStorage.setItem("playerName", playerName);
+          }
+        </script>
         <link rel="stylesheet" type="text/css" href="story.css">
         <title>
           Save the Water!
@@ -46,10 +55,10 @@
                         <br> &nbsp; &nbsp; but it's tough... she encounters anything <br> &nbsp; &nbsp; from tumbleweeds to even birds!
                       </p>
                       <p class="text">
-                        <button id="CTA" onclick="window.location='instructions.html'">
+                        <button id="CTA" onclick="window.location='instructions.html?playerName=' + encodeURIComponent(playerName)">
                           NEXT
                         </button>
-                        <button id="SKIP" onclick="window.location='instructions.html'">
+                        <button id="SKIP" onclick="window.location='instructions.html?playerName=' + encodeURIComponent(playerName)">
                           SKIP INSTRUCTIONS
                         </button>
                       </p>

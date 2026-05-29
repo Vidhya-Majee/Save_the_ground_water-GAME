@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water Management Quiz</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = urlParams.get('playerName') || localStorage.getItem("playerName");
+        if (!playerName) {
+            window.location.href = "index.html";
+        } else {
+            localStorage.setItem("playerName", playerName);
+        }
+    </script>
     <style>
         :root {
             --primary: #00f2fe;
@@ -48,6 +57,7 @@
             font-weight: 800;
             background: linear-gradient(to right, #00f2fe, #4facfe);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
@@ -163,9 +173,37 @@
         #explanation:not(:empty) {
             display: block;
         }
+
+        .home-nav-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #cbd5e1;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.25s ease;
+            z-index: 10;
+        }
+
+        .home-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.2);
+            border-color: rgba(0, 242, 254, 0.4);
+        }
     </style>
 </head>
 <body>
+    <a href="javascript:void(0)" onclick="window.location.href='index.html?playerName=' + encodeURIComponent(playerName)" class="home-nav-btn">🏠 Home</a>
     <div class="game-container">
         <h2>Water Management Quiz</h2>
         <p class="question" id="question">Loading...</p>
@@ -178,8 +216,8 @@
         <p id="explanation"></p>
         <p>Score: <span id="score">0</span></p>
         <button onclick="nextQuestion()" id="nextBtn" disabled>Next Question</button>
-        <button id="learnMoreBtn" onclick="window.location.href='surplus_rainwater.html'">Learn About Rainwater Harvesting</button>
-        <button id="dashboardBtn" onclick="window.location.href='second/dashboard.html'" style="display: none; background-color: #007bff; color: white;">Return to Dashboard</button>
+        <button id="learnMoreBtn" onclick="window.location.href='surplus_rainwater.html?playerName=' + encodeURIComponent(playerName)">Learn About Rainwater Harvesting</button>
+        <button id="dashboardBtn" onclick="window.location.href='second/dashboard.html?playerName=' + encodeURIComponent(playerName)" style="display: none; background-color: #007bff; color: white;">Return to Dashboard</button>
     </div>
 
     <script>
@@ -270,7 +308,15 @@
                 dashBtn.disabled = false;
 
                 // Unlock level 3 (more_groundwater)
-                let unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+                let unlockedLevels = ["rainwater"];
+                try {
+                    unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["rainwater"];
+                    if (!Array.isArray(unlockedLevels)) {
+                        unlockedLevels = ["rainwater"];
+                    }
+                } catch (e) {
+                    unlockedLevels = ["rainwater"];
+                }
                 if (!unlockedLevels.includes("more_groundwater")) {
                     unlockedLevels.push("more_groundwater");
                     localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
